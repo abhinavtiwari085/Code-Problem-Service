@@ -1,10 +1,13 @@
 const express=require('express');
 
 const bodyparser=require('body-parser');
-
+const mongoose=require('mongoose');
 const apiRouter=require('./routes')
 const {PORT}=require('./config/server.config');
-const app=express();
+const { BaseError } = require('sequelize');
+const errorHandler = require('./utils/errorHandler');
+const connectToDB = require('./config/db.config');
+const app=express(); 
 
 app.use(bodyparser.json());
 app.use(bodyparser.urlencoded({extended:true}));
@@ -15,39 +18,26 @@ app.use('./api',apiRouter);
 app.get('/ping',(req,res)=>{
     return res.json({message:"problem service jinda hia bhai"});
 })  
+  
+//last midddleware if any error comes
+app.use(errorHandler);
 
-app.listen(PORT,()=>{  
+app.listen(PORT,async ()=>{  
     console.log(`server started at PORT ${PORT}`) ; 
+    await connectToDB();
+    console.log("databse se connect ho gya") ;
+    // try { 
+    //     throw new NotFoundError({});
+    // } catch (error) {
+    //     console.log("kuch galat ho gya",error.name,error.stack);
+    // }finally{
+    //     console.log("Executed Finally") ;
+    // } 
+
+    //throw new BaseError("kuch error",404,{errorMessage:"something went wrong"});
+    const Cat = mongoose.model('Cat', { name: String });
+
+    const kitty = new Cat({ name: 'Zildjian' });
+    kitty.save().then(() => console.log('meow'));  
 })                       
-
-
-// const express = require('express');
-// const bodyParser = require('body-parser');
-
-// const { PORT } = require('./config/server.config');
-// const apiRouter = require('./routes');
-// // const errorHandler = require('./utils/errorHandler');
-
-
-// const app = express();
-
-// app.use(bodyParser.json());
-// app.use(bodyParser.urlencoded({ extended: true }));
-// app.use(bodyParser.text());
-
-
-// // If any request comes and route starts with /api, we map it to apiRouter
-// app.use('/api', apiRouter);
-
-
-// app.get('/ping', (req, res) => {
-//     return res.json({message: 'Problem Service is alive'});
-// });
-
-// // last middleware if any error comes
-// // app.use(errorHandler);
-
-// app.listen(PORT, () => {
-//     console.log(`Server started at PORT: ${PORT}`);
     
-// });   
