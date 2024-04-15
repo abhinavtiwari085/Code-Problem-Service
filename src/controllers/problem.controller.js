@@ -1,15 +1,17 @@
+
 const NotImplemented = require('../errors/notImplemented.error');
-//const { ProblemService } = require('../services');
-//const { ProblemRepository } = require('../repositories');
+const { ProblemService } = require('../services');
+const { ProblemRepository } = require('../repositories');
 const { StatusCodes } = require('http-status-codes');
 
-//const problemService = new ProblemService(new ProblemRepository());
-
+const problemService = new ProblemService(new ProblemRepository());
+console.log("controller mai");
 function pingProblemController(req, res) {
     return res.json({message: 'Problem controller is up'});
 }
  
 async function addProblem(req, res, next) {
+    console.log("inside add problem"); 
     try {
         console.log("incoming req body", req.body);
         const newproblem = await problemService.createProblem(req.body);
@@ -19,9 +21,7 @@ async function addProblem(req, res, next) {
             error: {},
             data: newproblem
         })
-    } catch(error) {
-        // calling error handler either express js default errror handler or our coustom built errror handler
-        // if we don, t call next  no  response will be sent back and the postman will keep waiting for the response
+    } catch(error) { 
         next(error);
     }
 }
@@ -33,10 +33,9 @@ async function getProblem(req, res, next) {
             success: true,
             error: {},
             message: 'Successfully fetched a problem',
-            data: problem 
+            data: problem
         })
     } catch(error) {
-        //calling error handler either express js default errror handler or our coustom built errror handler
         next(error);
     }
 }
